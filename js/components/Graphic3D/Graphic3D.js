@@ -9,17 +9,51 @@ class Graphic3D extends Component {
             CENTER: new Point(0, 0, -40),
             CAMERA: new Point(0, 0, -50),
         };
-        const callbacks = {};
         this.graph = new Graph({
             id:'graphic3D',
             WIN,
             width: 600,
             height: 600,
-            callbacks
+            callbacks:{
+                wheel: (event) => this.wheel(event),
+                mousemove: (event) => this.mousemove(event),
+                mouseup: () => this.mouseup(),
+                mousedown: () => this.mousedown()
+            }
         });
+        this.canMove = false;
+
         this.math3D = new Math3D({WIN});
         this.scene = this.cube();
         this.renderScene();
+    }
+
+    mouseup() {
+        this.canMove = false;
+    }
+
+    mousedown() {
+        this.canMove = true;
+    }
+
+    wheel(event) {
+        event.preventDefault(); //устанавливает обработку по умолчанию
+        const delta = (event.wheelDelta < 0)? 0.9: 1.1;
+        this.scene.points.forEach( point => this.math3D.zoom(point, delta));
+        this.renderScene();
+    }
+
+    mousemove(event) {
+        if (this.canMove) {
+            const gradus = Math.PI / 180/ 4;
+            this.scene.points.forEach( point => {
+                this.math3D.rotateOx(point, (this.dy-event.offsetY)*gradus );
+                this.math3D.rotateOy(point, (this.dx-event.offsetX)*gradus );
+            });
+            this.renderScene();
+        }
+        this.dy = event.offsetY;
+        this.dx = event.offsetX;
     }
 
     cube(
@@ -63,6 +97,7 @@ class Graphic3D extends Component {
 }
 
     renderScene() {
+        this.graph.clear();
         this.scene.points.forEach(
             point => this.graph.point(this.math3D.xs(point), this.math3D.ys(point))
         );

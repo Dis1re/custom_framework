@@ -103,7 +103,7 @@ class Math3D{
     rotateOy(point, alpha){
         const T = [
             [Math.cos(alpha), 0, -Math.sin(alpha), 0],
-            [0, 1, Math.sin(alpha), 0],
+            [0, 1, 0, 0],
             [Math.sin(alpha), 0, Math.cos(alpha), 0],
             [0, 0, 0, 1]
         ];
@@ -148,7 +148,6 @@ class Graph3D extends Component {
         );
         //...
         this.canMove = false;
-        this.zoomStep = 0.3;
     }
 
     mouseup() {
@@ -161,8 +160,8 @@ class Graph3D extends Component {
 
     wheel(event) {
         event.preventDefault(); //устанавливает обработку по умолчанию
-        const delta = (event.wheelDelta > 0)? -zoomStep: zoomStep;
-        this.scene.points.forEach( point => this.Math3D.Zoom(point, delta));
+        const delta = (event.wheelDelta > 0)? 0.9: 1.1;
+        this.scene.points.forEach( point => this.math3D.zoom(point, delta));
         this.renderScene();
     }
 
@@ -170,13 +169,13 @@ class Graph3D extends Component {
         if (this.canMove) {
             const gradus = Math.PI / 180/ 4;
             this.scene.points.forEach( point => {
-                this.Math3D.rotateOx(point, (this.dy-event.offsetY)*gradus );
-                this.Math3D.rotateOy(point, (this.dx-event.offsetX)*gradus );
+                this.math3D.rotateOx(point, (this.dy-event.offsetY)*gradus );
+                this.math3D.rotateOy(point, (this.dx-event.offsetX)*gradus );
             });
             this.renderScene();
         }
-        this.dx = event.offsetY;
-        this.dy = event.offsetX;
+        this.dy = event.offsetY;
+        this.dx = event.offsetX;
     }
 
     //...
