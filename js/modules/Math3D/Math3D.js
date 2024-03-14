@@ -185,4 +185,10 @@ class Math3D {
         surface.polygons.sort((a, b) => (a.distance < b.distance)? 1: -1);
     }
 
+    //добавим метод в Math3D для высчета освщения
+    calcIllumination(distance, lumen){
+        const illum = distance? lumen / distance**2 : 1;
+        return illum > 1? 1: illum;
+    }
+
 }

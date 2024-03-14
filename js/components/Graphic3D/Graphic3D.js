@@ -22,7 +22,7 @@ class Graphic3D extends Component {
             }
         });
         this.canMove = false;
-
+        this.LIGHT = new Light(-40, 15, 0, 1500)
         this.math3D = new Math3D(this.WIN);
         this.scene = this.cube();
         this.renderScene();
@@ -114,13 +114,20 @@ class Graphic3D extends Component {
             this.WIN.CAMERA,
             'distance'
         );
+        this.math3D.calcDistance(this.scene, this.LIGHT, 'lumen');
         this.math3D.sortByArtistAlgorithm(this.scene);
+
         this.scene.polygons.forEach(polygon => {
             const points = polygon.points.map(index => new Point(
                 this.math3D.xs(this.scene.points[index]),
                 this.math3D.ys(this.scene.points[index])
             ));
-            this.graph.polygon(points, polygon.color);
+            const lumen = this.math3D.calcIllumination(polygon.lumen, this.LIGHT.lumen);
+            let {r, g, b} = polygon.color;
+            r = Math.round(r*lumen);
+            g = Math.round(g*lumen);
+            b = Math.round(b*lumen);
+            this.graph.polygon(points, polygon.rgbToHex(r, g, b));
         });
 
         this.scene.edges.forEach(edge => {
@@ -135,7 +142,7 @@ class Graphic3D extends Component {
         this.scene.points.forEach(
             point => this.graph.point(this.math3D.xs(point), this.math3D.ys(point))
         );
-        
+
     }
 
     //куда то добавить метод clear

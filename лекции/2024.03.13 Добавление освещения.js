@@ -17,55 +17,55 @@
 //добавим новую сущность light
 //entities/Light.js
 class Light extends Point {
-    constructor(x, y, z, lumen=10000) {
+    constructor(x, y, z, lumen = 10000) {
         super(x, y, z);
         this.lumen = lumen;
     }
 }
 
 //дополним класс Polygon пару методами.
-class Polygon{
+class Polygon {
     //...
-    constructor(points=[], color='#555555') {
+    constructor(points = [], color = '#555555') {
         this.points = points;
         this.color = this.hexToRgb(color);
         this.distance = 0;
         this.lumen = 1;
     }
 
-    hexToRgb(hex){
+    hexToRgb(hex) {
         // в result присвоим значение регулярного выражения.
         // регулярные выражения - это написанные по специальным правилам строки,
         // определяющие правила сравнения входящих значений (тяжёлая операция).
         // область применения: сравнение вводимых пользователем на соответствие маске ввода.
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result? {
-            r: pasreInt(result[1], 16),
-            g: pasreInt(result[2], 16),
-            b: pasreInt(result[3], 16)
-        }: {r: 255, g: 0, b: 0};
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : {r: 255, g: 0, b: 0};
     }
 
-    RgbToHex(r, g, b){
+    rgbToHex(r, g, b) {
         return `rgb(${r}, ${g}, ${b})`;
     };
 }
 
 //добавим метод в Math3D для высчета освщения
 //Math3D.js
-class Math3D{
+class Math3D {
     //...
-    calcIllumination(distance, lumen){
-        const illum = distance? lumen / distance**2 : 1;
-        return illum > 1? 1: illum;
+    calcIllumination(distance, lumen) {
+        const illum = distance ? lumen / distance ** 2 : 1;
+        return illum > 1 ? 1 : illum;
     }
 }
 
 //
 //Graph3D.js
-class Graph3D extends Comment{
-    constructor(/* ... */) {
-        super(/* ... */);
+class Graph3D extends Comment {
+    constructor(props) {
+        super(props);
         //...
         this.LIGHT = new Light(-40, 15, 0, 15000);
     }
@@ -80,9 +80,9 @@ class Graph3D extends Comment{
             const points = /*...*/;
             const lumen = this.math3D.calcIllumination(polygon.lumen, this.LIGHT.lumen);
             let {r, g, b} = polygon.color;
-            r = Math.round(r*lumen);
-            g = Math.round(g*lumen);
-            b = Math.round(b*lumen);
+            r = Math.round(r * lumen);
+            g = Math.round(g * lumen);
+            b = Math.round(b * lumen);
             this.graph.polygon(points, polygon.rgbToHex(r, g, b));
         });
     }
