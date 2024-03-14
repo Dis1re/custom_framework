@@ -1,7 +1,7 @@
 class Graphic3D extends Component {
     constructor(props) {
         super(props);
-        const WIN = {
+        this.WIN = {
             LEFT: -5,
             BOTTOM: -5,
             WIDTH: 10,
@@ -11,7 +11,7 @@ class Graphic3D extends Component {
         };
         this.graph = new Graph({
             id:'graphic3D',
-            WIN,
+            WIN: this.WIN,
             width: 600,
             height: 600,
             callbacks:{
@@ -23,7 +23,7 @@ class Graphic3D extends Component {
         });
         this.canMove = false;
 
-        this.math3D = new Math3D({WIN});
+        this.math3D = new Math3D(this.WIN);
         this.scene = this.cube();
         this.renderScene();
     }
@@ -90,17 +90,39 @@ class Graphic3D extends Component {
         new Edge(5, 7)
     ];
 
+    const polygons = [
+        new Polygon([0, 1, 3, 2], '#88ff88'),
+        new Polygon([0, 1, 5, 4], '#ff8888'),
+        new Polygon([0, 4, 6, 2], '#8888ff'),
+        new Polygon([7, 5, 1, 3], '#66ff22  '),
+        new Polygon([7, 3, 2, 6], '#88ffff'),
+        new Polygon([7, 6, 4, 5], '#ffff88')
+    ];
+
     return new Surface(
         points,
-        edges
+        edges,
+        polygons
     );
 }
 
     renderScene() {
         this.graph.clear();
-        this.scene.points.forEach(
-            point => this.graph.point(this.math3D.xs(point), this.math3D.ys(point))
+
+        this.math3D.calcDistance(
+            this.scene,
+            this.WIN.CAMERA,
+            'distance'
         );
+        this.math3D.sortByArtistAlgorithm(this.scene);
+        this.scene.polygons.forEach(polygon => {
+            const points = polygon.points.map(index => new Point(
+                this.math3D.xs(this.scene.points[index]),
+                this.math3D.ys(this.scene.points[index])
+            ));
+            this.graph.polygon(points, polygon.color);
+        });
+
         this.scene.edges.forEach(edge => {
             const point1 = this.scene.points[edge.p1];
             const point2 = this.scene.points[edge.p2];
@@ -109,6 +131,11 @@ class Graphic3D extends Component {
                 this.math3D.xs(point2), this.math3D.ys(point2),
             );
         });
+
+        this.scene.points.forEach(
+            point => this.graph.point(this.math3D.xs(point), this.math3D.ys(point))
+        );
+        
     }
 
     //куда то добавить метод clear

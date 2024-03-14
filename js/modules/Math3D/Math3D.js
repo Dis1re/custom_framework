@@ -1,5 +1,5 @@
 class Math3D {
-    constructor({WIN}) {
+    constructor(WIN) {
         this.WIN = WIN;
     }
 
@@ -162,5 +162,27 @@ class Math3D {
         point.z = array[2];
     }
 
+    calcDistance(surface, endPoint, name) {
+        surface.polygons.forEach(polygon => {
+            let x=0, y=0, z=0;
+            polygon.points.forEach(index => {
+                x+= surface.points[index].x;
+                y+= surface.points[index].y;
+                z+= surface.points[index].z;
+            });
+            x /= polygon.points.length;
+            y /= polygon.points.length;
+            z /= polygon.points.length;
+            polygon[name] = Math.sqrt(
+                (endPoint.x-x)**2 +
+                (endPoint.y-y)**2 +
+                (endPoint.z-z)**2
+            );//квадратный корень - это очень тяжёлая операция, как синус, косинус и подобные.
+        });
+    }
+
+    sortByArtistAlgorithm(surface) {
+        surface.polygons.sort((a, b) => (a.distance < b.distance)? 1: -1);
+    }
 
 }
