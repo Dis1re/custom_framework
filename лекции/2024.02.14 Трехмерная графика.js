@@ -48,7 +48,7 @@ class Surface {
 }
 
 
-//js/modules/Math3D/entities/ Math3D.js
+//js/modules/Math3D/Math3D.js
 class Math3D {
     constructor({WIN}) {
         this.WIN = WIN;
