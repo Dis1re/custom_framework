@@ -1,0 +1,1 @@
+class Graph2D extends Component {}

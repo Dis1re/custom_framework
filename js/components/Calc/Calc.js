@@ -1,0 +1,1 @@
+class Calc extends Component {}
