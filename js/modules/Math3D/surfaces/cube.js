@@ -1,16 +1,22 @@
 Surfaces.prototype.cube =
     (
+        point = new Point(0, 0, 0),
+        size = 10,
         color = '#888888'
     ) => {
+        const x = point.x;
+        const y = point.y;
+        const z = point.z;
+        size = size /2;
         const points = [
-            new Point(-5, -5, 5), //0
-            new Point(5, -5, 5), //1
-            new Point(-5, 5, 5), //2
-            new Point(5, 5, 5), //3
-            new Point(-5, -5, -5), //4
-            new Point(5, -5, -5), //5
-            new Point(-5, 5, -5), //6
-            new Point(5, 5, -5) //7
+            new Point(x-size, y+-size, z+size), //0
+            new Point(x+size, y+-size, z+size), //1
+            new Point(x-size, y+size, z+size), //2
+            new Point(x+size, y+size, z+size), //3
+            new Point(x-size, y+-size, z+-size), //4
+            new Point(x+size, y+-size, z+-size), //5
+            new Point(x-size, y+size, z+-size), //6
+            new Point(x+size, y+size, z+-size) //7
         ];
         //       2------3
         //      /|     /|

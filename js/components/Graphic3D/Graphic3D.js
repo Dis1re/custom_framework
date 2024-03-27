@@ -6,7 +6,7 @@ class Graphic3D extends Component {
             BOTTOM: -5,
             WIDTH: 10,
             HEIGHT: 10,
-            CENTER: new Point(0, 0, -40),
+            CENTER: new Point(0, 0, -30),
             CAMERA: new Point(0, 0, -50),
         };
         this.graph = new Graph({
@@ -22,10 +22,13 @@ class Graphic3D extends Component {
             }
         });
         this.canMove = false;
-        this.LIGHT = new Light(-40, 15, 0, 1500)
+        this.LIGHT = new Light(-20, 0, -20, 1000)
         this.surfaces = new Surfaces();
         this.math3D = new Math3D(this.WIN);
-        this.scene = this.solarSystem();
+        this.scene = [];
+        this.scene.push(this.surfaces.sphere(new Point(10, -1, 0), 3));
+        this.scene.push(this.surfaces.sphere(new Point(0, -3, 0), 3));
+        this.scene[0].addAnimation('rotateOy', 0.1);
         setInterval(() => {
             this.scene.forEach(surface => surface.doAnimation(this.math3D));
             this.renderScene();
@@ -68,38 +71,28 @@ class Graphic3D extends Component {
 
     solarSystem() {
         const Earth = this.surfaces.sphere(/*сюда задать параметры*/);
-        Earth.addAnimation('rotateOy', 0.1);
+        Earth.addAnimation('rotateOy', 0.01);
         const Moon = this.surfaces.cube(/*тоже задать параметры*/);
-        Moon.addAnimation('rotateOx', 0.2);
-        Moon.addAnimation('rotateOz', 0.5, Earth.center);
+        Moon.addAnimation('rotateOx', 0.1);
+        Moon.addAnimation('rotateOz', 0.1, Earth.center);
         return [Earth, Moon];
     }
 
     renderScene() {
         this.graph.clear();
 
-        this.scene.forEach(surface => {
+        const polygons = [];
 
-            this.math3D.calcDistance(
-                surface,
-                this.WIN.CAMERA,
-                'distance'
-            );
+        this.scene.forEach((surface, index) => {
+
+            this.math3D.calcCenter(surface);
+            this.math3D.calcRadius(surface);
+            this.math3D.calcDistance(surface, this.WIN.CAMERA, 'distance');
             this.math3D.calcDistance(surface, this.LIGHT, 'lumen');
-            this.math3D.sortByArtistAlgorithm(surface);
-
             surface.polygons.forEach(polygon => {
-                const points = polygon.points.map(index => new Point(
-                    this.math3D.xs(surface.points[index]),
-                    this.math3D.ys(surface.points[index])
-                ));
-                const lumen = this.math3D.calcIllumination(polygon.lumen, this.LIGHT.lumen);
-                let {r, g, b} = polygon.color;
-                r = Math.round(r * lumen);
-                g = Math.round(g * lumen);
-                b = Math.round(b * lumen);
-                this.graph.polygon(points, polygon.rgbToHex(r, g, b));
-            });
+                polygon.index = index;
+                polygons.push(polygon);
+            } );
 
             surface.edges.forEach(edge => {
                 const point1 = surface.points[edge.p1];
@@ -112,6 +105,26 @@ class Graphic3D extends Component {
 
             surface.points.forEach(point => this.graph.point(this.math3D.xs(point), this.math3D.ys(point))
             );
+        });
+
+        this.math3D.sortByArtistAlgorithm(polygons);
+
+        polygons.forEach(polygon => {
+            const points = polygon.points.map(index => new Point(
+                this.math3D.xs(this.scene[polygon.index].points[index]),
+                this.math3D.ys(this.scene[polygon.index].points[index])
+            ));
+            let {r, g, b} = polygon.color;
+            const {isShadow, dark}  = this.math3D.calcShadow(polygon, this.scene, this.LIGHT);
+            const lumen = this.math3D.calcIllumination(polygon.lumen,
+                this.LIGHT.lumen)*(isShadow?dark: 1);
+            if (polygon.index === 1) {
+                console.log(dark, isShadow, lumen);
+            }
+            r = Math.round(r * lumen);
+            g = Math.round(g * lumen);
+            b = Math.round(b * lumen);
+            this.graph.polygon(points, polygon.rgbToHex(r, g, b));
         });
     }
 
@@ -167,4 +180,8 @@ class Graphic3D extends Component {
         -** из программ-компоненты вынести функционал на интерфейс,
                         то есть добавить кнопочки или чекбоксы для создания анимации и тд
         -*** со всех анимаций собрать одну матрицу преобразования
+
+    седьмая лекция:
+        - не рисовать невидимые полигоны
+        -* сделать так, чтобы фигура могла отбрасывать тень на себя же
 */
